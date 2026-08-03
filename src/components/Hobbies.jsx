@@ -17,7 +17,21 @@ function Hobbies(){
         }
     ])
 
+    const [newHobby, setNewHobby] = useState("")
+
+    // const [isWritten, setIsWritten] = useState(false)
+
     function addHobbie(name){
+        name = name.trim()
+        if (name === "") {
+        alert('You need to fill the hobby input')
+        return
+       }
+       const alreadyExists = hobbies.some(h => h.name === name)
+       if (alreadyExists){
+        alert('The hobby has already been written')
+        return
+       }
        setHobbies([
         ...hobbies,
         {
@@ -25,16 +39,27 @@ function Hobbies(){
             name: name
         }
        ])
+       setNewHobby("")
+    }
+
+     function handleChange(e){
+      setNewHobby(e.target.value)
+     }
+
+    function handleSubmit(e) {
+        e.preventDefault()
+        addHobbie(newHobby)
     }
 
 
     return (
         <div>
+            <form onSubmit={handleSubmit}></form>
         
                 Enter new hobby
             
-                    <input type="text" name="name" onChange={(e) => addHobbie(e.target.value) }/>
-              
+                    <input type="text" name="name" value={newHobby} onChange={handleChange}/>
+              <button type="submit">Add</button>
                 
             
             <ul>{  hobbies.map( hobby => <li key={hobby.id}>{hobby.name}
