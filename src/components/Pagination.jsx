@@ -123,10 +123,40 @@ function ApiWithPagination(){
     (_, index) => index + 1
 );
 
+function getPages() {
+    const pagesAr = [];
+
+    if (page <= 2) {
+        pagesAr.push(1);
+        pagesAr.push(2);
+        pagesAr.push(3);
+        pagesAr.push('...');
+        pagesAr.push(totalPages);
+    }
+    else if (page >= totalPages - 1) {
+        pagesAr.push(1);
+        pagesAr.push('...');
+        pagesAr.push(totalPages - 2);
+        pagesAr.push(totalPages - 1);
+        pagesAr.push(totalPages)
+    }
+    else {
+        pagesAr.push(1);
+        pagesAr.push('...');
+        pagesAr.push(page - 1);
+        pagesAr.push(page);
+        pagesAr.push(page + 1);
+        pagesAr.push('...');
+        pagesAr.push(totalPages)
+    }
+
+    return pagesAr;
+}
+
    return (
     <div>
         <ul>{posts.map(p => <li key={p.id}>{p.title}</li>)}</ul>
-        <button onClick={toPrev}>Previous</button>
+        {/* <button onClick={toPrev}>Previous</button>
         {pages.map(pageNumber => (
     <button
         key={pageNumber}
@@ -135,7 +165,16 @@ function ApiWithPagination(){
         {pageNumber}
     </button>
 ))}
-        <button onClick={toNext}>Next</button>
+        <button onClick={toNext}>Next</button> */}
+
+        <div>{getPages().map(pageNum => {
+            if (typeof pageNum === "number"){
+                return <button key={pageNum} onClick={() => setPage(pageNum)}>{pageNum}</button>
+            }
+            if (typeof pageNum === "string"){
+                return <span>...</span>
+            }
+        })}</div>
     </div>
    )
 
