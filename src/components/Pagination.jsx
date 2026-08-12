@@ -18,13 +18,7 @@ function Pagination() {
 
     const postsPerPage = 3;
 
-   let start = (page - 1) * postsPerPage;
-
-   let end = start + postsPerPage;
-
    const totalPages = Math.ceil(posts.length / postsPerPage)
-
-   const currentPosts = posts.slice(start, end);
 
    function toPrevPage(){
     if (page === 1){
@@ -61,6 +55,7 @@ function ApiWithPagination(){
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [totalPosts, setTotalPosts] = useState(0);
 
     const postsPerPage = 3;
 
@@ -68,18 +63,21 @@ function ApiWithPagination(){
 
    let end = start + postsPerPage;
 
-   const totalPages = Math.ceil(posts.length / postsPerPage)
+   const totalPages = Math.ceil(totalPosts / postsPerPage)
 
    useEffect(() => {
     async function getPosts() {
         try{
+            setError(null);
+            setLoading(true);
              const res = await fetch(`https://jsonplaceholder.typicode.com/posts?_page=${page}&_limit=${postsPerPage}`);
               if (!res.ok){
              throw new Error ('Something went wrong')
 }
+         const total = Number(res.headers.get("X-Total-Count"));
+         setTotalPosts(total);
         const data = await res.json();
         setPosts(data);
-        // return posts;
         }
         catch (error){
          setError(error)
@@ -90,6 +88,7 @@ function ApiWithPagination(){
 
         
     }
+    getPosts();
    }, [page]);
 
    if (error){
@@ -119,10 +118,23 @@ function ApiWithPagination(){
     }
    }
 
+   const pages = Array.from(
+    { length: totalPages },
+    (_, index) => index + 1
+);
+
    return (
     <div>
         <ul>{posts.map(p => <li key={p.id}>{p.title}</li>)}</ul>
         <button onClick={toPrev}>Previous</button>
+        {pages.map(pageNumber => (
+    <button
+        key={pageNumber}
+        onClick={() => setPage(pageNumber)}
+    >
+        {pageNumber}
+    </button>
+))}
         <button onClick={toNext}>Next</button>
     </div>
    )
