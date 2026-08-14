@@ -17,8 +17,12 @@ function PostSearch(){
         async function getPosts(){
             try{
                 setError(null)
-            setLoading(true)
-            const res = await fetch(`https://jsonplaceholder.typicode.com/posts?_page=${page}&_limit=${postsPerPage}&title_like=${searchedTitle}`)
+            setLoading(true);
+          const url = searchedTitle
+    ? `https://jsonplaceholder.typicode.com/posts?_page=${page}&_limit=${postsPerPage}&title_like=${searchedTitle}`
+    : `https://jsonplaceholder.typicode.com/posts?_page=${page}&_limit=${postsPerPage}`;
+
+            const res = await fetch(url);
             if (!res.ok){
                 throw new Error('API does not give response')
             }
@@ -26,7 +30,6 @@ function PostSearch(){
              setTotalPosts(total);
             const data = await res.json();
             setPosts(data);
-            return posts;
             }
             catch (error){
                 setError(error);
@@ -36,20 +39,29 @@ function PostSearch(){
             }
             
         }
-        getPosts()
+
+        const timer = setTimeout(() => {
+getPosts();
+        }, 500);
+
+        return () => clearTimeout(timer);
+        
     }, [page, searchedTitle]);
 
     if (error){
         return <h2>Error</h2>
     }
-    if (loading){
-        return <h2>Loading...</h2>
-    }
 
     function getPages(){
          const pagesAr = [];
 
-    if (page <= 2) {
+         if (totalPages <= 5){
+            for (let i = 1; i <= totalPages; i++){
+                pagesAr.push(i);
+            }
+         }
+
+    else if (page <= 2) {
         pagesAr.push(1);
         pagesAr.push(2);
         pagesAr.push(3);
@@ -72,26 +84,68 @@ function PostSearch(){
         pagesAr.push('...');
         pagesAr.push(totalPages)
     }
+    
 
     return pagesAr;
+    }
+
+      function toPrev(){
+        if (page === 1){
+            alert('This is the first page');
+            return;
+        }
+        else {setPage(prev => prev - 1)}
+    }
+
+    function toNext(){
+        if (page === totalPages){
+            alert('This is the last page');
+            return;
+        }
+        else {setPage(prev => prev + 1)}
     }
 
     return (
         <div>
             <input type="text" placeholder="Search any post" onChange={(e) => {
                 setSearchedTitle(e.target.value);
+                setPage(1);
             }}/>
-            <ul>{getPosts().filter(p => p.title.includes(searchedTitle)).map(p => <li>{p.title}</li>)}</ul>
-           <div>{getPages().map(pageNum => {
+            {loading ? (<h2>Loading...</h2>) : (posts.length === 0 ? (<h2>No posts found</h2>) : (<ul>{posts.map(p => <li key={p.id}>{p.title}</li>)}</ul>))}
+           <div>
+            <button onClick={toPrev}>Previous</button>
+            {getPages().map(pageNum => {
             if (typeof pageNum === "number"){
                 return <button key={pageNum} onClick={() => setPage(pageNum)}>{pageNum}</button>
             }
             if (typeof pageNum === "string"){
                 return <span>...</span>
             }
-        })}</div>
+        })}
+        <button onClick={toNext}>Next</button>
+        </div>
         </div>
     )
 
 
-}
+};
+
+// function Notes(){
+//     const [text, setText] = useState('');
+
+//     useEffect(() => {
+//         const timer = setTimeout(() => {
+// console.log(text);
+//         }, 1000)
+//         return () => {
+//             clearTimeout(timer)
+//         }
+//     }, [text])
+
+//     return (
+//         <div>
+//             <textarea  value={text}
+//             onChange={(e) => setText(e.target.value)}/>
+//         </div>
+//     )
+// }
