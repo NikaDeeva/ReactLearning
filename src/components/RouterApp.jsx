@@ -2,8 +2,11 @@ import {
     BrowserRouter,
     Routes,
     Route,
-    Link
+    Link,
+    useParams,
+    useNavigate
 } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 function App(){
     return (
@@ -11,6 +14,8 @@ function App(){
 <Routes>
     <Route path='/' element={<Home />} />
     <Route path='/about' element={<About />} />
+    <Route path='/posts' element={<Posts />} />
+    <Route path='/posts/:id' element={<Post />} />
 </Routes>
 </BrowserRouter>
     )
@@ -35,4 +40,91 @@ function About() {
             <Link to="/">Go to home</Link>
         </div>
     ) ;
+}
+
+
+function Posts(){
+    
+    const [posts, setPosts] = useState([]);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+          async function getPosts(){
+           try{
+            setError(null);
+            setLoading(true);
+            const res = await fetch(`https://jsonplaceholder.typicode.com/posts`);
+            if (!res.ok){
+                throw new Error('error')
+            }
+            const data = await res.json();
+            setPosts(data);
+           }
+           catch (error){
+            setError(error.message);
+           }
+           finally{
+            setLoading(false);
+           }
+        }
+        getPosts();
+    }, []);
+
+    return (
+        <div> {loading ? <h2>Loading...</h2> : 
+        error ? <h2>Error</h2> :   
+        <ul>{posts.map(p => <li key={p.id}><Link to={`/posts/${p.id}`}>{p.title}</Link></li>)}</ul> }
+          
+        </div>
+    )
+}
+
+
+
+function Post(){
+
+    const [post, setPost] = useState({});
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    const nav = useNavigate();
+  
+    const { id } = useParams();
+    const numId = Number(id);
+
+    useEffect(() => {
+        async function getPost(){
+           try{
+            setError(null);
+            setLoading(true);
+            const res = await fetch(`https://jsonplaceholder.typicode.com/posts/${numId}`);
+            if (!res.ok){
+                throw new Error('API doesn`t give response')
+            }
+            const data = await res.json();
+            setPost(data);
+           }
+           catch (error){
+            setError(error.message);
+           }
+           finally{
+            setLoading(false);
+           }
+        }
+        getPost();
+    }, [numId]);
+
+    if (loading){
+        return <h2>Loading...</h2>
+    }
+    if (error){
+        return <h2>{error}</h2>
+    }
+    return (
+        <div><h2>{post.title}</h2>
+        <button onClick={() => nav('/posts', { replace: true })}>Back to posts</button>
+        </div>
+        
+    )
 }
