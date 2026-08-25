@@ -4,7 +4,8 @@ import {
     Route,
     Link,
     useParams,
-    useNavigate
+    useNavigate,
+    Outlet
 } from "react-router-dom";
 import { useState, useEffect } from "react";
 
@@ -127,4 +128,44 @@ function Post(){
         </div>
         
     )
+}
+
+function App(){
+    return (
+        <BrowserRouter>
+        <Routes>
+            <Route path='/dashboard' element={<Dashboard/>}>
+            <Route path='profile' element={<Profile/>}></Route>
+            <Route path='settings' element={<Settings/>}></Route>
+            </Route>
+        </Routes>
+        </BrowserRouter>
+    )
+}
+
+function Dashboard(){
+return(
+    <div>
+        <h2>Dashboard</h2>
+        <nav>
+            <Link to='profile'>Profile</Link>
+            <Link to='settings'>Settings</Link>
+        </nav>
+        <Outlet/>
+    </div>
+        
+      
+)
+}
+function Profile(){
+return(
+        <h2>Profile page</h2>
+      
+)
+}
+function Settings(){
+return(
+        <h2>Settings page</h2>
+      
+)
 }
