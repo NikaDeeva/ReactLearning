@@ -49,6 +49,8 @@ function Posts(){
     const [posts, setPosts] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    
+
 
     useEffect(() => {
           async function getPosts(){
@@ -135,6 +137,7 @@ function App(){
         <BrowserRouter>
         <Routes>
             <Route path='/dashboard' element={<Dashboard/>}>
+            <Route index element={<DashboardHome />} />
             <Route path='profile' element={<Profile/>}></Route>
             <Route path='settings' element={<Settings/>}></Route>
             </Route>
@@ -156,6 +159,9 @@ return(
         
       
 )
+}
+function DashboardHome(){
+    return <h2>Welcome to Dashboard!</h2>
 }
 function Profile(){
 return(
