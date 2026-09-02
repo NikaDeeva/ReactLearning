@@ -71,3 +71,74 @@ function Modal(){
         </div>
     )
 }
+
+function useInput(initValue){
+const [value, setValue] = useState(initValue);
+function onChange(e){
+    setValue(e.target.value)
+}
+function reset(){
+    setValue(initValue);
+}
+return {value, onChange, reset};
+}
+function Form() {
+    const name = useInput("");
+    const email = useInput("");
+
+    return (
+        <form>
+            <input
+                value={name.value}
+                onChange={name.onChange}
+            />
+
+            <input
+                value={email.value}
+                onChange={email.onChange}
+            />
+
+            <button type="button" onClick={name.reset}>
+                Reset name
+            </button>
+        </form>
+    );
+}
+
+function useFetch(url) {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [data, setData] = useState([]);
+
+    useEffect(() => {
+        async function getData(){
+            try{
+                setError(null);
+                setLoading(true);
+                const res = await fetch(url);
+                if (!res.ok){
+                    throw new Error('Something went wrong');
+                }
+                const gottenData = await res.json();
+                setData(gottenData);
+            }
+            catch (error){
+                setError(error.message);
+            }
+            finally {
+                setLoading(false)
+            }
+        }
+        getData();
+    }, [url]);
+
+    return {loading, error, data}
+}
+
+function Posts(){
+    const {loading, error, data} = useFetch('https://jsonplaceholder.typicode.com/posts');
+    return (
+        <div>{loading ? <h2>Loading...</h2> : error ? <h2>Error: {error}</h2> : <ul>{data.map(p => <li key={p.id}>{p.title}</li>)}</ul>}</div>
+    )
+
+}
