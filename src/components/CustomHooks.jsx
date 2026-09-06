@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function useCounter(){
     const [count, setCount] = useState(0);
@@ -149,3 +149,23 @@ function Posts(){
 
 }
 
+function useLocalStorage(key, initialValue){
+    const [value, setValue] = useState(() => {
+        const savedValue = localStorage.getItem('todos');
+        if (savedValue !== null){
+            return savedValue;
+        }
+        return initialValue;
+    });
+    useEffect(() => {
+        localStorage.setItem(key, JSON.stringify(value))
+    });
+    return [value, setValue]
+};
+
+function App(){
+    const [todos, setTodos] = useLocalStorage('todos', []);
+    return (
+        <div></div>
+    )
+}
