@@ -110,8 +110,7 @@ function useFetch(url) {
     const [error, setError] = useState(null);
     const [data, setData] = useState([]);
 
-    useEffect(() => {
-        async function getData(){
+    async function getData(){
             try{
                 setError(null);
                 setLoading(true);
@@ -129,16 +128,24 @@ function useFetch(url) {
                 setLoading(false)
             }
         }
+
+    useEffect(() => {
         getData();
     }, [url]);
 
-    return {loading, error, data}
+    function refetch(){
+        getData();
+    }
+
+    return {loading, error, data, refetch}
 }
 
 function Posts(){
-    const {loading, error, data} = useFetch('https://jsonplaceholder.typicode.com/posts');
+    const {loading, error, data, refetch} = useFetch('https://jsonplaceholder.typicode.com/posts');
     return (
-        <div>{loading ? <h2>Loading...</h2> : error ? <h2>Error: {error}</h2> : <ul>{data.map(p => <li key={p.id}>{p.title}</li>)}</ul>}</div>
+        <div>{loading ? <h2>Loading...</h2> : error ? <h2>Error: {error}</h2> : <ul>{data.map(p => <li key={p.id}>{p.title}</li>)}</ul>}
+        <button onClick={refetch}>Reload</button></div>
     )
 
 }
+
