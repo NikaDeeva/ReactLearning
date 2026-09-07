@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 function useCounter(){
     const [count, setCount] = useState(0);
@@ -153,19 +153,78 @@ function useLocalStorage(key, initialValue){
     const [value, setValue] = useState(() => {
         const savedValue = localStorage.getItem('todos');
         if (savedValue !== null){
-            return savedValue;
+            return JSON.parse(savedValue);
         }
         return initialValue;
     });
     useEffect(() => {
         localStorage.setItem(key, JSON.stringify(value))
-    });
+    }, [key, value]);
     return [value, setValue]
 };
 
 function App(){
     const [todos, setTodos] = useLocalStorage('todos', []);
     return (
-        <div></div>
+        <div><ul>{todos.map(task => <li>{task}</li>)}</ul>
+        </div>
     )
+}
+
+function useDebounce(value, delay){
+
+    const [debouncedValue, setDebouncedValue] = useState(value);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedValue(value)
+        }, delay)
+        return () => clearTimeout(timer)
+    }, [value, delay]);
+     return debouncedValue;
+}
+function Search() {
+    const [search, setSearch] = useState('');
+
+    const debouncedSearch = useDebounce(search, 500);
+
+    useEffect(() => {
+    console.log(debouncedSearch);
+}, [debouncedSearch]);
+
+    return (
+        <div>
+            <input
+                value={search}
+                onChange={e => {
+                    setSearch(e.target.value);
+                }}
+            />
+        </div>
+    );
+}
+
+function SearchPosts(){
+    const [search, setSearch] = useState('');
+    const debouncedSearch = useDebounce(search, 500);
+ const {loading, error, data, refetch} = useFetch(`https://jsonplaceholder.typicode.com/posts?title=${debouncedSearch}`);
+        
+    return (
+        <div>
+            <input type="text" onChange={(e) => setSearch(e.target.value)}/>
+            {loading ? <h2>Loading...</h2> : error ? <h2>{error.message}</h2> : <p>{data.length > 0 && data[0].title}</p> }
+        
+        </div>
+        
+    )
+}
+
+function usePrevious(value) {
+
+    const prevNum = useRef(null);
+
+    useEffect(() => {
+        prevNum.current = value;
+    })
+
+    return prevNum.current;
 }
