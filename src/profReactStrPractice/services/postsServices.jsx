@@ -15,5 +15,5 @@ export async function getPost(id){
 }
 
 export async function createPost(post){
-    
+    // 
 }
